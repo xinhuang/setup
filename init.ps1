@@ -1,8 +1,25 @@
 $download = "$pwd\download"
 $log = "$pwd\log"
+$bin = "$pwd\bin"
 
-mkdir $download
-mkdir $log
+function mk-dir($path) {
+    if (Test-Path -path $path -pathType Container) {
+        return
+    }
+    mkdir $path
+}
 
-Invoke-WebRequest https://www.python.org/ftp/python/2.7.10/python-2.7.10.msi -OutFile $download\python-2.7.10.msi
-msiexec /i download\python-2.7.10.msi /passive /qb /norestart /log log\install_python-2.7.10.log
+function download($url, $path) {
+    Invoke-WebRequest $url -OutFile $path
+}
+
+function install-msi($path) {
+    $filename = Split-Path -path $path -leaf
+    msiexec /i $path /passive /qb /norestart /log $log\install_$filename.log
+}
+
+mk-dir $download
+mk-dir $log
+
+download "https://www.python.org/ftp/python/2.7.10/python-2.7.10.msi" "$download\python-2.7.10.msi"
+install-msi "$download\python-2.7.10.msi"
