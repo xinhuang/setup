@@ -3,7 +3,7 @@
   "dependencies": [],
   "installation": {
     "linux": {
-      "source": { "name": "apt" }
+      "apt": {}
     }
   }
 }

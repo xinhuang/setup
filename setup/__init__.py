@@ -6,7 +6,7 @@ import setup
 
 
 def start(path):
-    package_dir = os.path.join(path, 'etc')
+    package_dir = os.path.join(path, 'packages')
     download_dir = os.path.join(path, 'download')
 
     files = [os.path.join(package_dir, f) for f in os.listdir(package_dir)
