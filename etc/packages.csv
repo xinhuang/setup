@@ -1,0 +1,3 @@
+#name,url,installation_command
+easysetup,https://bootstrap.pypa.io/ez_setup.py,python {path}
+pip,https://bootstrap.pypa.io/get-pip.py,python {path}
