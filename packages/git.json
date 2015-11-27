@@ -1,0 +1,9 @@
+{
+  "name": "git",
+  "dependencies": [],
+  "installation": {
+    "linux": {
+      "source": { "name": "apt" }
+    }
+  }
+}

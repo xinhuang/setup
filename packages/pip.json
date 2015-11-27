@@ -1,0 +1,10 @@
+{
+  "name": "pip",
+  "dependencies": ["easysetup"],
+  "installation": {
+    "default": {
+      "url": "https://bootstrap.pypa.io/get-pip.py",
+      "command": "python {path}"
+    }
+  }
+}

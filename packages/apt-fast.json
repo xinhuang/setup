@@ -1,0 +1,12 @@
+{
+  "name": "apt-fast",
+  "dependencies": [],
+  "installation": {
+    "linux": {
+      "source": {
+        "name": "apt",
+        "before_install": ["add-apt-repository -y ppa:saiarcot895/myppa", "apt-get update"]
+      }
+    }
+  }
+}

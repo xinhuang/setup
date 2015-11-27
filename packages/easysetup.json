@@ -1,0 +1,9 @@
+{
+  "name": "easysetup",
+  "installation": {
+    "default": {
+      "url": "https://bootstrap.pypa.io/ez_setup.py",
+      "command": "python {path}"
+    }
+  }
+}
