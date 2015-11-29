@@ -13,3 +13,9 @@ For Linux, use `sudo bash init.sh`.
 > Python 2.7.10  
 > Easy Setup  
 > Pip
+> git
+> Ruby
+
+### Linux
+
+> apt-fast
