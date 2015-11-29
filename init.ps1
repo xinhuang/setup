@@ -23,3 +23,5 @@ mk-dir $log
 
 download "https://www.python.org/ftp/python/2.7.10/python-2.7.10.msi" "$download\python-2.7.10.msi"
 install-msi "$download\python-2.7.10.msi"
+
+python setup.py
