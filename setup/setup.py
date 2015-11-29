@@ -8,22 +8,38 @@ system = None
 root_dir = None
 
 
+def apt_add_repo(r):
+    print 'add-apt-repository', r
+    subprocess.check_call(['add-apt-repository', '-y', r], stderr=subprocess.STDOUT)
+
+
+def apt_install(name):
+    print 'apt-get install', name
+    subprocess.check_call(['apt-get', '-y', 'install', name], stderr=subprocess.STDOUT)
+
+
+def apt_update():
+    subprocess.check_call(['apt-get', 'update'], stderr=subprocess.STDOUT)
+
+
 def install_apt(apt, **kwargs):
-    pass
+    if 'repositories' in apt.keys():
+        for r in apt['repositories']:
+            apt_add_repo(r)
+        apt_update()
+    apt_install(kwargs['name'])
 
 
 def custom_command(cmd, **kwargs):
-    path = ""
-    for name, value in kwargs.items():
-        if name == 'path':
-            path = value
-    cmd = cmd.format(path=path)
+    cmd = cmd.format(path=kwargs['path'])
+    print '$ ', cmd
     subprocess.check_call(cmd, stderr=subprocess.STDOUT, shell=True)
 
 
 def download(url):
-    subprocess.check_output([get_wget(), '--no-check-certificate', url],
-                            stderr=subprocess.STDOUT)
+    print 'wget --no-check-certificate ', url
+    subprocess.check_call([get_wget(), '--no-check-certificate', url],
+                          stderr=subprocess.STDOUT)
     return os.path.basename(url)
 
 proxies = {
@@ -34,7 +50,7 @@ proxies = {
 
 
 def install(name, instruction):
-    print "Installing " + name + "..."
+    print ">>>>>>>>>>>>>>>>> Installing " + name + " <<<<<<<<<<<<<<<<<<"
     try:
         download_path = ''
         if 'url' in instruction.keys():
@@ -44,7 +60,7 @@ def install(name, instruction):
                 continue
             if i not in proxies.keys():
                 print "Error: Don't know how to install " + name
-            proxies[i](instruction[i], path=download_path)
+            proxies[i](instruction[i], name=name, path=download_path)
     except subprocess.CalledProcessError as e:
         print "Error: Installing {name} failed while executing following command.".format(name=name)
         print ""
