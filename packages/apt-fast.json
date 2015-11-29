@@ -3,7 +3,8 @@
   "dependencies": [],
   "installation": {
     "linux": {
-      "apt": { "repositories": ["ppa:saiarcot895/myppa"] }
+      "apt": { "repositories": ["ppa:saiarcot895/myppa"] },
+      "post-install": { "apt": "apt-fast" }
     }
   }
 }

@@ -8,18 +8,29 @@ system = None
 root_dir = None
 
 
+hooks = {
+    'apt': 'apt-get',
+    'url': 'wget --no-check-certificate',
+    'command': '',
+}
+
+
 def apt_add_repo(r):
+    global hooks
     print 'add-apt-repository', r
     subprocess.check_call(['add-apt-repository', '-y', r], stderr=subprocess.STDOUT)
 
 
 def apt_install(name):
-    print 'apt-get install', name
-    subprocess.check_call(['apt-get', '-y', 'install', name], stderr=subprocess.STDOUT)
+    global hooks
+    print hooks['apt'], 'install', name
+    subprocess.check_call(hooks['apt'] + ' -y install ' + name,
+                          stderr=subprocess.STDOUT, shell=True)
 
 
 def apt_update():
-    subprocess.check_call(['apt-get', 'update'], stderr=subprocess.STDOUT)
+    global hooks
+    subprocess.check_call(hooks['apt'] + ' update', stderr=subprocess.STDOUT, shell=True)
 
 
 def install_apt(apt, **kwargs):
@@ -31,15 +42,17 @@ def install_apt(apt, **kwargs):
 
 
 def custom_command(cmd, **kwargs):
-    cmd = cmd.format(path=kwargs['path'])
+    global hooks
+    cmd = hooks['command'] + cmd.format(path=kwargs['path'])
     print '$ ', cmd
     subprocess.check_call(cmd, stderr=subprocess.STDOUT, shell=True)
 
 
 def download(url):
-    print 'wget --no-check-certificate ', url
-    subprocess.check_call([get_wget(), '--no-check-certificate', url],
-                          stderr=subprocess.STDOUT)
+    global hooks
+    print hooks['url'], url
+    subprocess.check_call(hooks['url'] + ' ' + url,
+                          stderr=subprocess.STDOUT, shell=True)
     return os.path.basename(url)
 
 proxies = {
@@ -49,6 +62,15 @@ proxies = {
 }
 
 
+def get_wget():
+    global system, hooks
+    if hooks['url'] != 'wget --no-check-certificate':
+        return hooks['url']
+    if system == 'windows':
+        return os.path.join(root_dir, 'bin', 'wget.exe')
+    return 'wget'
+
+
 def install(name, instruction):
     print ">>>>>>>>>>>>>>>>> Installing " + name + " <<<<<<<<<<<<<<<<<<"
     try:
@@ -56,11 +78,15 @@ def install(name, instruction):
         if 'url' in instruction.keys():
             download_path = proxies['url'](instruction['url'])
         for i in instruction:
-            if i == 'url':
+            if i == 'url' or i == 'post-install':
                 continue
             if i not in proxies.keys():
                 print "Error: Don't know how to install " + name
             proxies[i](instruction[i], name=name, path=download_path)
+        if 'post-install' in instruction.keys():
+            for i in instruction['post-install']:
+                if i in hooks.keys():
+                    hooks[i] = instruction['post-install'][i]
     except subprocess.CalledProcessError as e:
         print "Error: Installing {name} failed while executing following command.".format(name=name)
         print ""
@@ -86,13 +112,6 @@ def install_via(name, source):
         cmd = sources[source['name']].format(name=name)
 
     subprocess.check_call(cmd, stderr=subprocess.STDOUT, shell=True)
-
-
-def get_wget():
-    global system
-    if system == 'windows':
-        return os.path.join(root_dir, 'bin', 'wget.exe')
-    return 'wget'
 
 
 def is_whitespace_or_none(s):

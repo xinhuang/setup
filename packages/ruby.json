@@ -1,0 +1,9 @@
+{
+  "name": "ruby",
+  "dependencies": [],
+  "installation": {
+    "linux": {
+      "apt": {}
+    }
+  }
+}
