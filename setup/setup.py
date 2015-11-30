@@ -131,11 +131,16 @@ def start(path, download_dir, packages):
 
     os.chdir(download_dir)
     for p in packages:
+        name = p['name']
         if ('disabled' in p.keys() and p['disabled'] == True):
             continue
+        instruction = None
         if (system in p['installation']):
             instruction = p['installation'][system]
         elif ('default' in p['installation']):
             instruction = p['installation']['default']
 
-        install(p['name'], instruction)
+        if instruction != None:
+            install(name, instruction)
+        else:
+            print 'Skipped installing', name, 'for', system
