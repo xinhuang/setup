@@ -4,15 +4,9 @@ import os
 import platform
 import json
 
-system = None
 root_dir = None
+system = platform.system().lower()
 
-
-hooks = {
-    'apt': 'apt-get',
-    'url': 'wget --no-check-certificate',
-    'command': '',
-}
 
 
 def apt_add_repo(r):
@@ -50,8 +44,8 @@ def custom_command(cmd, **kwargs):
 
 def download(url):
     global hooks
-    print hooks['url'], url
-    subprocess.check_call(hooks['url'] + ' ' + url,
+    print get_wget(), url
+    subprocess.check_call(get_wget() + ' ' + url,
                           stderr=subprocess.STDOUT, shell=True)
     return os.path.basename(url)
 
@@ -61,18 +55,22 @@ proxies = {
     'command': custom_command,
 }
 
+hooks = {
+    'apt': 'apt-get',
+    'url': 'wget --no-check-certificate',
+    'command': '',
+}
+
 
 def get_wget():
-    global system, hooks
-    if hooks['url'] != 'wget --no-check-certificate':
-        return hooks['url']
+    global system
     if system == 'windows':
-        return os.path.join(root_dir, 'bin', 'wget.exe')
-    return 'wget'
+        return os.path.join(root_dir, 'bin', 'wget.exe') + ' --no-check-certificate'
+    return 'wget --no-check-certificate'
 
 
 def install(name, instruction):
-    print ">>>>>>>>>>>>>>>>> Installing " + name + " <<<<<<<<<<<<<<<<<<"
+    print "\n>>>>>>>>>>>>>>>>> Installing " + name + " <<<<<<<<<<<<<<<<<<"
     try:
         download_path = ''
         if 'url' in instruction.keys():
@@ -126,7 +124,6 @@ def check_run(type, cmd):
 def start(path, download_dir, packages):
     global system
     global root_dir
-    system = platform.system().lower()
     root_dir = path
 
     os.chdir(download_dir)
