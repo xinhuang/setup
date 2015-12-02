@@ -10,21 +10,21 @@ system = platform.system().lower()
 
 
 def apt_add_repo(r):
-    global hooks
+    global services
     print 'add-apt-repository', r
     subprocess.check_call(['add-apt-repository', '-y', r], stderr=subprocess.STDOUT)
 
 
 def apt_install(name):
-    global hooks
-    print hooks['apt'], 'install', name
-    subprocess.check_call(hooks['apt'] + ' -y install ' + name,
+    global services
+    print services['apt'], 'install', name
+    subprocess.check_call(services['apt'] + ' -y install ' + name,
                           stderr=subprocess.STDOUT, shell=True)
 
 
 def apt_update():
-    global hooks
-    subprocess.check_call(hooks['apt'] + ' update', stderr=subprocess.STDOUT, shell=True)
+    global services
+    subprocess.check_call(services['apt'] + ' update', stderr=subprocess.STDOUT, shell=True)
 
 
 def install_apt(apt, **kwargs):
@@ -36,14 +36,14 @@ def install_apt(apt, **kwargs):
 
 
 def custom_command(cmd, **kwargs):
-    global hooks
-    cmd = hooks['command'] + cmd.format(path=kwargs['path'])
+    global services
+    cmd = services['command'] + cmd.format(path=kwargs['path'])
     print '$ ', cmd
     subprocess.check_call(cmd, stderr=subprocess.STDOUT, shell=True)
 
 
 def download(url):
-    global hooks
+    global services
     print get_wget(), url
     subprocess.check_call(get_wget() + ' ' + url,
                           stderr=subprocess.STDOUT, shell=True)
@@ -55,7 +55,7 @@ proxies = {
     'command': custom_command,
 }
 
-hooks = {
+services = {
     'apt': 'apt-get',
     'url': 'wget --no-check-certificate',
     'command': '',
@@ -68,6 +68,10 @@ def get_wget():
         return os.path.join(root_dir, 'bin', 'wget.exe') + ' --no-check-certificate'
     return 'wget --no-check-certificate'
 
+def install_services(services):
+    global services
+    for k in services.keys():
+        services[k] = services[k]
 
 def install(name, instruction):
     print "\n>>>>>>>>>>>>>>>>> Installing " + name + " <<<<<<<<<<<<<<<<<<"
@@ -81,10 +85,11 @@ def install(name, instruction):
             if i not in proxies.keys():
                 print "Error: Don't know how to install " + name
             proxies[i](instruction[i], name=name, path=download_path)
-        if 'post-install' in instruction.keys():
-            for i in instruction['post-install']:
-                if i in hooks.keys():
-                    hooks[i] = instruction['post-install'][i]
+
+        post_install = instruction['post-install']
+        if post_install is not None:
+            if 'services' in post_install:
+                install_services(post_install['services'])
     except subprocess.CalledProcessError as e:
         print "Error: Installing {name} failed while executing following command.".format(name=name)
         print ""
@@ -120,6 +125,8 @@ def check_run(type, cmd):
     if (type == 'apt'):
         apt_install(cmd)
 
+def sort_packages(packages):
+    return packages
 
 def start(path, download_dir, packages):
     global system
