@@ -4,6 +4,9 @@
   "installation": {
     "linux": {
       "apt": {}
+    },
+    "windows": {
+      "choco": {}
     }
   }
 }
