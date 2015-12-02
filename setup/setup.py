@@ -44,8 +44,8 @@ def custom_command(cmd, **kwargs):
 
 def download(url):
     global services
-    print get_wget(), url
-    subprocess.check_call(get_wget() + ' ' + url,
+    print get_wget().format(name=url)
+    subprocess.check_call(get_wget().format(name=url),
                           stderr=subprocess.STDOUT, shell=True)
     return os.path.basename(url)
 
@@ -56,7 +56,7 @@ proxies = {
 }
 
 services = {
-    'apt': 'apt-get',
+    'apt': 'apt-get {name}',
     'url': 'wget --no-check-certificate',
     'command': '',
 }
@@ -68,10 +68,10 @@ def get_wget():
         return os.path.join(root_dir, 'bin', 'wget.exe') + ' --no-check-certificate'
     return 'wget --no-check-certificate'
 
-def install_services(services):
+def install_services(new_serv):
     global services
-    for k in services.keys():
-        services[k] = services[k]
+    for k in new_serv.keys():
+        services[k] = new_serv[k]
 
 def install(name, instruction):
     print "\n>>>>>>>>>>>>>>>>> Installing " + name + " <<<<<<<<<<<<<<<<<<"
@@ -90,6 +90,7 @@ def install(name, instruction):
         if post_install is not None:
             if 'services' in post_install:
                 install_services(post_install['services'])
+
     except subprocess.CalledProcessError as e:
         print "Error: Installing {name} failed while executing following command.".format(name=name)
         print ""
@@ -103,18 +104,6 @@ def install(name, instruction):
         print e.filename
         print e.args
         print e.message
-
-
-def install_via(name, source):
-    global sources
-    s = source.keys[0]
-    if 'before_install' in source.keys():
-        for action in source['before_install']:
-            subprocess.check_call(action, stderr=subprocess.STDOUT, shell=True)
-    if source['name'] == 'apt':
-        cmd = sources[source['name']].format(name=name)
-
-    subprocess.check_call(cmd, stderr=subprocess.STDOUT, shell=True)
 
 
 def is_whitespace_or_none(s):
