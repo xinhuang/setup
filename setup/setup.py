@@ -7,6 +7,11 @@ import json
 root_dir = None
 system = platform.system().lower()
 
+services = {
+    'apt': 'apt-get {name}',
+    'url': 'wget --no-check-certificate {url}',
+    'command': None,
+}
 
 
 def apt_add_repo(r):
@@ -35,62 +40,55 @@ def install_apt(apt, **kwargs):
     apt_install(kwargs['name'])
 
 
-def custom_command(cmd, **kwargs):
-    global services
-    cmd = services['command'] + cmd.format(path=kwargs['path'])
-    print '$ ', cmd
-    subprocess.check_call(cmd, stderr=subprocess.STDOUT, shell=True)
-
-
 def download(url):
     global services
-    print get_wget().format(name=url)
+    cmd = get_wget().format(url=url)
+    print cmd
 
     filename = os.path.basename(url)
     if (not os.path.isfile(filename)):
-        subprocess.check_call(get_wget().format(name=url),
-                              stderr=subprocess.STDOUT, shell=True)
+        subprocess.check_call(cmd, stderr=subprocess.STDOUT, shell=True)
     return filename
-
-proxies = {
-    'apt': install_apt,
-    'url': download,
-    'command': custom_command,
-}
-
-services = {
-    'apt': 'apt-get {name}',
-    'url': 'wget --no-check-certificate',
-    'command': '',
-}
 
 
 def get_wget():
     global system
     if system == 'windows':
-        return os.path.join(root_dir, 'bin', 'wget.exe') + ' --no-check-certificate'
+        return os.path.join(root_dir, 'bin', 'wget.exe') + ' --no-check-certificate {url}'
     return 'wget --no-check-certificate'
+
 
 def install_services(new_serv):
     global services
     for k in new_serv.keys():
-        print 'Installing service:',k,'as',new_serv[k]
+        print 'Installing service:', k, 'as', new_serv[k]
         services[k] = new_serv[k]
+
+
+def start_service(service, **kwargs):
+    print 'start_service>', service
+    cmd = service.format(name=kwargs['name'], path=kwargs['path'])
+    print '$', cmd
+    subprocess.check_call(cmd, stderr=subprocess.STDOUT, shell=True)
+
 
 def install(name, instruction):
     print "\n>>>>>>>>>>>>>>>>> Installing", name, "<<<<<<<<<<<<<<<<<"
     try:
         download_path = ''
         if 'url' in instruction.keys():
-            download_path = proxies['url'](instruction['url'])
+            download_path = download(instruction['url'])
         for i in instruction:
             if i == 'url' or i == 'post-install':
                 continue
             if i not in services.keys():
                 print "Error: Don't know how to install", name, 'via', i
                 continue
-            cmd = services[i].format(name=name, path=download_path)
-            subprocess.check_call(cmd, stderr=subprocess.STDOUT, shell=True)
+
+            cmd = services[i]
+            if i == 'command':
+                cmd = instruction[i]
+            start_service(cmd, name=name, path=download_path)
 
         if 'post-install' in instruction.keys():
             post_install = instruction['post-install']
@@ -120,8 +118,10 @@ def check_run(type, cmd):
     if (type == 'apt'):
         apt_install(cmd)
 
+
 def sort_packages(packages):
     return packages
+
 
 def start(path, download_dir, packages):
     global system
