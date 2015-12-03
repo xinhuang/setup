@@ -8,8 +8,8 @@ root_dir = None
 system = platform.system().lower()
 
 services = {
-    'apt': 'apt-get {name}',
-    'url': 'wget --no-check-certificate {url}',
+    'apt': {'install': 'apt-get {name}'},
+    'url': {'install': 'wget --no-check-certificate {url}'},
     'command': None,
 }
 
@@ -85,9 +85,11 @@ def install(name, instruction):
                 print "Error: Don't know how to install", name, 'via', i
                 continue
 
-            cmd = services[i]
-            if i == 'command':
+            service = services[i]
+            if service is None:
                 cmd = instruction[i]
+            else:
+                cmd = service['install']
             start_service(cmd, name=name, path=download_path)
 
         if 'post-install' in instruction.keys():
