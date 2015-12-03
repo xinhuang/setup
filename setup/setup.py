@@ -8,7 +8,7 @@ root_dir = None
 system = platform.system().lower()
 
 services = {
-    'apt': {'install': 'apt-get {name}', 'repo': 'add-apt-repository -y {value}'},
+    'apt': {'install': 'apt-get -y install {name}', 'repo': 'add-apt-repository -y {value}'},
     'url': {'install': 'wget --no-check-certificate {value}'},
     'command': None,
 }
