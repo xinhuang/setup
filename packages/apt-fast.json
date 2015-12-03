@@ -5,9 +5,11 @@
     "linux": {
       "apt": { "repositories": ["ppa:saiarcot895/myppa"] },
       "post-install": {
+        "_comment": "Fix the wrong value of _MAXNUM in apt-fast.conf",
+        "command": "sed -i 's/_MAXNUM=20/_MAXNUM=10/' /etc/apt-fast.conf",
         "services": {
           "apt": {
-            "install": "apt-fast -y install {name}"
+            "install": "apt-fast -y -x 16 install {name}"
           }
         }
       }

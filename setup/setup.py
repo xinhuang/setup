@@ -67,6 +67,9 @@ def install(name, instruction):
 
         if 'post-install' in instruction.keys():
             post_install = instruction['post-install']
+            if 'command' in post_install:
+                cmd = post_install['command']
+                start_service(cmd, name=name, path=download_path)
             if 'services' in post_install:
                 install_services(post_install['services'])
 
