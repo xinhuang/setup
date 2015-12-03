@@ -8,8 +8,8 @@ root_dir = None
 system = platform.system().lower()
 
 services = {
-    'apt': {'install': 'apt-get {name}'},
-    'url': {'install': 'wget --no-check-certificate {url}'},
+    'apt': {'install': 'apt-get {name}', 'repo': 'add-apt-repository -y {value}'},
+    'url': {'install': 'wget --no-check-certificate {value}'},
     'command': None,
 }
 
@@ -42,7 +42,7 @@ def install_apt(apt, **kwargs):
 
 def download(url):
     global services
-    cmd = get_wget().format(url=url)
+    cmd = get_wget().format(value=url)
     print cmd
 
     filename = os.path.basename(url)
