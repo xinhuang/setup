@@ -2,13 +2,14 @@ import unittest
 from setup import *
 
 
-
 class TestSetup(unittest.TestCase):
 
     def test_sort_package_dependency(self):
-        packages = [{'name': 'ipython', 'dependencies': ['pip'], }, {'name': 'pip', }, ]
+        packages = [{'name': 'ipython', 'dependencies': ['pip'], },
+                    {'name': 'pip', 'dependencies': []}, ]
         packages = sort_packages(packages)
 
+        self.assertEqual(2, len(packages))
         self.assertEqual('pip', packages[0]['name'])
         self.assertEqual('ipython', packages[1]['name'])
 

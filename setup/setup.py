@@ -122,13 +122,28 @@ def check_run(type, cmd):
 
 
 def sort_packages(packages):
-    return packages
+    sorted = []
+    while len(packages) > 0:
+        for p in packages:
+            if len(p['dependencies']) == 0:
+                sorted.append(p)
+                name = p['name']
+                for t in packages:
+                    if name in t['dependencies']:
+                        t['dependencies'].remove(name)
+                packages.remove(p)
+                break
+    return sorted
 
 
 def start(path, download_dir, packages):
     global system
     global root_dir
     root_dir = path
+    for p in packages:
+        if 'dependencies' not in p.keys():
+            p['dependencies'] = []
+    packages = sort_packages(packages)
 
     os.chdir(download_dir)
     for p in packages:

@@ -1,0 +1,7 @@
+{
+  "name": "python",
+  "dependencies": [],
+  "installation": {
+    "default": { "command": "" }
+  }
+}
