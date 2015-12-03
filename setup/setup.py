@@ -14,32 +14,6 @@ services = {
 }
 
 
-def apt_add_repo(r):
-    global services
-    print 'add-apt-repository', r
-    subprocess.check_call(['add-apt-repository', '-y', r], stderr=subprocess.STDOUT)
-
-
-def apt_install(name):
-    global services
-    print services['apt'], 'install', name
-    subprocess.check_call(services['apt'] + ' -y install ' + name,
-                          stderr=subprocess.STDOUT, shell=True)
-
-
-def apt_update():
-    global services
-    subprocess.check_call(services['apt'] + ' update', stderr=subprocess.STDOUT, shell=True)
-
-
-def install_apt(apt, **kwargs):
-    if 'repositories' in apt.keys():
-        for r in apt['repositories']:
-            apt_add_repo(r)
-        apt_update()
-    apt_install(kwargs['name'])
-
-
 def download(url):
     global services
     cmd = get_wget().format(value=url)
@@ -66,7 +40,6 @@ def install_services(new_serv):
 
 
 def start_service(service, **kwargs):
-    print 'start_service>', service
     cmd = service.format(name=kwargs['name'], path=kwargs['path'])
     print '$', cmd
     subprocess.check_call(cmd, stderr=subprocess.STDOUT, shell=True)
