@@ -5,7 +5,11 @@
     "linux": {
       "apt": { "repositories": ["ppa:saiarcot895/myppa"] },
       "post-install": {
-        "services": { "apt": "apt-fast" }
+        "services": {
+          "apt": {
+            "install": "apt-fast -y install {name}"
+          }
+        }
       }
     }
   }
