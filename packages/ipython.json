@@ -1,9 +1,9 @@
 {
   "name": "ipython",
-  "dependencies": ["python"],
+  "dependencies": ["python", "pip"],
   "installation": {
     "default": {
-      "command": "pip install ipython"
+      "pip": ""
     }
   }
 }

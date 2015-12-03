@@ -4,7 +4,12 @@
   "installation": {
     "default": {
       "url": "https://bootstrap.pypa.io/get-pip.py",
-      "command": "python {path}"
+      "command": "python {path}",
+      "post-install": {
+        "services": {
+          "pip": { "install": "pip install {name}" }
+        }
+      }
     }
   }
 }
