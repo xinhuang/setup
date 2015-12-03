@@ -78,7 +78,7 @@ def install_services(new_serv):
         services[k] = new_serv[k]
 
 def install(name, instruction):
-    print "\n>>>>>>>>>>>>>>>>> Installing " + name + " <<<<<<<<<<<<<<<<<<"
+    print "\n>>>>>>>>>>>>>>>>> Installing", name, "<<<<<<<<<<<<<<<<<"
     try:
         download_path = ''
         if 'url' in instruction.keys():
@@ -142,4 +142,4 @@ def start(path, download_dir, packages):
         if instruction != None:
             install(name, instruction)
         else:
-            print 'Skipped installing', name, 'for', system
+            print '>>>>>>>>>>>>>>>>> Skipped installing', name, 'for', system, '<<<<<<<<<<<<<<<<<'
