@@ -10,6 +10,9 @@ function mk-dir($path) {
 }
 
 function download($url, $path) {
+    if (Test-Path -path $path -pathType Leaf) {
+      return
+    }
     Invoke-WebRequest $url -OutFile $path
 }
 

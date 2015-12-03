@@ -45,9 +45,12 @@ def custom_command(cmd, **kwargs):
 def download(url):
     global services
     print get_wget().format(name=url)
-    subprocess.check_call(get_wget().format(name=url),
-                          stderr=subprocess.STDOUT, shell=True)
-    return os.path.basename(url)
+
+    filename = os.path.basename(url)
+    if (not os.path.isfile(filename)):
+        subprocess.check_call(get_wget().format(name=url),
+                              stderr=subprocess.STDOUT, shell=True)
+    return filename
 
 proxies = {
     'apt': install_apt,
@@ -71,6 +74,7 @@ def get_wget():
 def install_services(new_serv):
     global services
     for k in new_serv.keys():
+        print 'Installing service:',k,'as',new_serv[k]
         services[k] = new_serv[k]
 
 def install(name, instruction):
@@ -82,12 +86,14 @@ def install(name, instruction):
         for i in instruction:
             if i == 'url' or i == 'post-install':
                 continue
-            if i not in proxies.keys():
-                print "Error: Don't know how to install " + name
-            proxies[i](instruction[i], name=name, path=download_path)
+            if i not in services.keys():
+                print "Error: Don't know how to install", name, 'via', i
+                continue
+            cmd = services[i].format(name=name, path=download_path)
+            subprocess.check_call(cmd, stderr=subprocess.STDOUT, shell=True)
 
-        post_install = instruction['post-install']
-        if post_install is not None:
+        if 'post-install' in instruction.keys():
+            post_install = instruction['post-install']
             if 'services' in post_install:
                 install_services(post_install['services'])
 
